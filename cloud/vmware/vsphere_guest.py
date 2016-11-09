@@ -261,6 +261,7 @@ EXAMPLES = '''
     resource_pool: "/Resources"
     vm_extra_config:
       folder: MyFolder
+      datastore: targetDatastoreName
 
 # Task to gather facts from a vSphere cluster only if the system is a VMware guest
 
@@ -746,6 +747,11 @@ def deploy_template(vsphere_client, guest, resource_pool, template_src, esxi, mo
             if vm_extra_config.get("folder") is not None:
                 # if a folder is specified, clone the VM into it
                 cloneArgs["folder"] = vm_extra_config.get("folder")
+
+            if vm_extra_config.get("datastore") is not None:
+                # if a datastore is specified, clone the VM to it instead of to the same place as template
+                datastore, ds = find_datastore(module, vsphere_client, vm_extra_config.get("datastore"), None)
+                cloneArgs["datastore"] = ds
 
             vmTemplate.clone(guest, **cloneArgs)
 
